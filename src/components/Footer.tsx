@@ -20,21 +20,30 @@ const style = {
 };
 
 interface IFooterProps {
+  barcode: string;
+  qrcode: string;
+  plateSide: string;
+  sampleId: string;  
   like: () => void;
   deleteImage: () => void;
 }
 
 export default class Footer extends Component<IFooterProps> {
   render() {
-    const {like, deleteImage} = this.props
+    const {barcode, qrcode, plateSide, sampleId, like, deleteImage} = this.props
 
     return (
-      <div style={style.footer}>
-        <div onClick={like} style={style.button}>
-          <FontAwesomeIcon icon={faThumbsUp} /> Like
-        </div>
-        <div onClick={deleteImage} style={style.button}>
-          <FontAwesomeIcon icon={faTrash} /> Delete
+      <div>
+        <div>
+          {barcode}{plateSide}__{plateSide}
+        </div>          
+        <div style={style.footer}>      
+          <div onClick={like} style={style.button}>
+            <FontAwesomeIcon icon={faThumbsUp} /> Like
+          </div>
+          <div onClick={deleteImage} style={style.button}>
+            <FontAwesomeIcon icon={faTrash} /> Delete
+          </div>
         </div>
       </div>
     );

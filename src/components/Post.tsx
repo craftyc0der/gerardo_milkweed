@@ -11,17 +11,27 @@ const style = {
 
 interface IPostProps {
   image: string;
+  barcode: string;
+  qrcode: string;
+  plateSide: string;
+  sampleId: string;
   like: () => void;
   deleteImage: () => void;
 }
 
 export default class Post extends Component<IPostProps> {
   render() {
-    const { image, like, deleteImage } = this.props;
+    const { image, barcode, qrcode, plateSide, sampleId, like, deleteImage } = this.props;
     return (
       <div style={style}>
         <img style={{ width: "300px" }} src={image} />
-        <Footer like={like} deleteImage={deleteImage}/>
+        <Footer 
+          barcode={barcode}
+          qrcode={qrcode}
+          plateSide={plateSide}
+          sampleId={sampleId}          
+          like={like} 
+          deleteImage={deleteImage}/>
       </div>
     );
   }

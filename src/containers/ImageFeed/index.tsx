@@ -65,7 +65,12 @@ class ImageFeed extends Component<IImageFeedProps> {
                 <Post 
                   like={this.handleLike(x)}
                   deleteImage={this.handleDeleteImage(x)}
-                  image={post.imageURL} />
+                  image={post.imageURL}
+                  barcode={post.barcode}
+                  qrcode={post.qrcode}
+                  plateSide={post.plateSide}
+                  sampleId={post.sampleId}
+                />
               </div>
             );
           }

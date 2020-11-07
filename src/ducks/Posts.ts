@@ -6,7 +6,10 @@ import { IState } from ".";
 
 // interfaces
 export interface IPost {
-  comment: string
+  barcode: string
+  qrcode: string
+  plateSide: string;
+  sampleId: string
   userId: string
   createdAt: firestore.Timestamp
   imageURL: string
