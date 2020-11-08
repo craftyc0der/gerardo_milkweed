@@ -17,6 +17,11 @@ const style = {
     padding: "10px 15px",
     cursor: "pointer",
   } as CSSProperties,
+  row: {
+    display: "flex",
+    justifyContent: "space-between", //add 100% spaces beetween all element contend (profile and button), good for work with columns
+    marginBottom: "10px",
+  },
 };
 
 interface IFooterProps {
@@ -34,8 +39,9 @@ export default class Footer extends Component<IFooterProps> {
 
     return (
       <div>
-        <div>
-          {barcode}{plateSide}__{plateSide}
+        <div style={style.row}>
+          <div>{barcode}{plateSide}__{qrcode}</div>
+          <div>{sampleId}</div>
         </div>          
         <div style={style.footer}>      
           <div onClick={like} style={style.button}>

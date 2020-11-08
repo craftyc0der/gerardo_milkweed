@@ -67,10 +67,6 @@ class Profile extends Component<IProfileProps> {
             submitProfileImage={submitProfileImage}
           />
           <span>
-            <Link to="/app/upload">
-              <Button> Add Images </Button>
-            </Link>
-            <br />
             <Button onClick={handleLogout}> Logout </Button>  
           </span>
         </div>
