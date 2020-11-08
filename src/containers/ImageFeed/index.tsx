@@ -85,7 +85,7 @@ class ImageFeed extends Component<IImageFeedProps> {
             <Action style={style.actionButtonStyles} text="Add Images" onClick={e => history.push("/app/upload")}>
               📷
             </Action>
-            <Action style={style.actionButtonStyles} text="Add Metadata" onClick={e => console.log(e)}>
+            <Action style={style.actionButtonStyles} text="Add Metadata" onClick={e => history.push("/app/upload-data")}>
               🗃️
             </Action>          
         </Fab>        
@@ -97,7 +97,7 @@ class ImageFeed extends Component<IImageFeedProps> {
 const mapStateToProps = (state: IState) => {
   const { Posts: { data, fetched, fetching }, } = state;
   const loading = fetching || !fetched;
-
+  console.log(data);
   return {
     data,
     fetched,

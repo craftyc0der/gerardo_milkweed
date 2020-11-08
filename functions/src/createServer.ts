@@ -104,5 +104,34 @@ export default () => {
     }
   })
 
+  app.post('/posts/upload-data', async (req: IRequest, res: any) => {
+    //const { uid } = req.user
+    const parse = require('csv-parse/lib/sync');
+    const fileContents: string = req.body.toString()
+    const csvtop = fileContents.split('\r\n\r\n')[1]
+    const csv = csvtop.split('\n\r\n------WebKit')[0] 
+    const records: any[] = parse(csv, {
+      columns: true,
+      skip_empty_lines: true
+    })
+    const updates = [];
+    for (let item of records) {
+      if (item.barcode && item.sampleId) {
+        const snaps = await db.collection('posts')
+          .where('barcode', '==', item.barcode)
+          .get()
+        if (snaps.size > 0) {
+          for (let doc of snaps.docs) {
+            await doc.ref.update({
+              sampleId: item.sampleId
+            })
+            updates.push({ id: doc.id })
+          }
+        }
+      }
+    }
+    res.send(updates)
+  })
+
   return app
 }

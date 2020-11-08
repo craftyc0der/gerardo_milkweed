@@ -8,7 +8,7 @@ interface IUploadInputField {
   errorMessage: string
 }
 
-interface IUploadPostFormProps {
+interface IUploadDataFormProps {
   disabled: boolean,
   failures: [],
 }
@@ -24,20 +24,20 @@ const handleChange = (input: WrappedFieldInputProps) => async (e: React.ChangeEv
     const { onChange } = input
     const { files } = e.target
     if(files) {
-        await onChange(files)
+        await onChange(files[0])
     }
 }
 
 const RenderFileField: React.StatelessComponent<WrappedFieldProps & IUploadInputField> = ({input, label, errorMessage}) => 
     <div>
         <span style={ inputStyle.span }>{ label }</span>
-        <input onChange={handleChange(input)} type='file' accept='.jpg' multiple style={ inputStyle.input } />
+        <input onChange={handleChange(input)} type='file' accept='.csv' style={ inputStyle.input } />
         <span style={ style.error }>
             { errorMessage }
         </span>
     </div>
 
-class UploadPostForm extends React.Component<InjectedFormProps<{}, IUploadPostFormProps> & IUploadPostFormProps> {
+class UploadDataForm extends React.Component<InjectedFormProps<{}, IUploadDataFormProps> & IUploadDataFormProps> {
     
     public render() {
         const { handleSubmit, disabled, failures } = this.props
@@ -48,13 +48,13 @@ class UploadPostForm extends React.Component<InjectedFormProps<{}, IUploadPostFo
         }
         return (
             <form onSubmit={ handleSubmit }>
-                <Field name='files' label='Images' errorMessage={rf} component={ RenderFileField } />
+                <Field name='file' label='CSV File' errorMessage={rf} component={ RenderFileField } />
                 <Button disabled={disabled}>Upload</Button>
             </form>
         )
     }
 }
 
-export default reduxForm<any, IUploadPostFormProps>({
-    form: 'upload-new-post'
-})(UploadPostForm)
+export default reduxForm<any, IUploadDataFormProps>({
+    form: 'upload-new-data'
+})(UploadDataForm)

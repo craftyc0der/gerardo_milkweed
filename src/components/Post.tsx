@@ -35,7 +35,6 @@ export default class Post extends Component<IPostProps> {
 
   handleShowDialog = () => {
     this.setState({ isOpen: !this.state.isOpen });
-    console.log("cliked");
   };
 
   render() {

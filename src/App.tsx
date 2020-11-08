@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import Profile from "./containers/Profile";
 import services from "./services";
 import UploadPost from "./containers/ImageFeed/UploadPost";
+import UploadData from "./containers/ImageFeed/UploadData";
 
 interface IAppProps {
   history: History;
@@ -55,6 +56,7 @@ class App extends React.Component<IAppProps> {
         <Route exact={true} path="/app/imagefeed" component={ImageFeed} />
         <Route exact={true} path="/app/profile" component={Profile} />
         <Route exact={true} path="/app/upload" component={UploadPost} />
+        <Route exact={true} path="/app/upload-data" component={UploadData} />
       </BrowserRouter>
     );
   }

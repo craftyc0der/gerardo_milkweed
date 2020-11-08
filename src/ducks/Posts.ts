@@ -23,6 +23,10 @@ export interface IUploadPost {
   files: FileList
 }
 
+export interface IUploadData {
+  file: File
+}
+
 export interface IUploadFailure {
   files: string[]
 }
@@ -36,6 +40,7 @@ const REMOVE = 'posts/remove'
 const UPLOAD_START = 'posts/upload-start'
 const UPLOAD_SUCCESS = 'posts/upload-success'
 const UPLOAD_FAILURE = 'posts/upload-failure'
+const UPLOAD_DATA_SUCCESS = 'posts/upload-data-success'
 
 // action creators
 const fetchStart = () => ({
@@ -62,6 +67,11 @@ const uploadSuccess = (payload: IDataPosts) => ({
   type: UPLOAD_SUCCESS,
 })
 
+const uploadDataSuccess = (payload: IDataPosts) => ({
+  payload,
+  type: UPLOAD_DATA_SUCCESS,
+})
+
 const uploadFailure = (payload: IUploadFailure) => ({
   payload,
   type: UPLOAD_FAILURE,
@@ -75,6 +85,7 @@ const remove = (payload: string) => ({
 // reducer initial state
 const initialState = {
   data: {},
+  failures: [],
   fetched: false,
   fetching: false,
   uploaded: false,
@@ -82,6 +93,7 @@ const initialState = {
 }
 
 export default function reducer(state = initialState, action: AnyAction) {
+  const posts: any = {}
   switch (action.type) {
     case START:
       return {
@@ -115,6 +127,7 @@ export default function reducer(state = initialState, action: AnyAction) {
         uploading: true
       }
     case UPLOAD_SUCCESS:
+      state.failures = []
       return {
         ...state,
         data: {
@@ -129,9 +142,20 @@ export default function reducer(state = initialState, action: AnyAction) {
         failures: action.payload.files,
         uploaded: false,
         uploading: false,
+      }
+    case UPLOAD_DATA_SUCCESS:
+      state.failures = []
+      console.log(action.payload) 
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          ...action.payload,
+        },
+        uploaded: true,
+        uploading: false,
       }      
     case REMOVE:
-      const posts: any = {}
       for (const [key, value] of Object.entries(state.data)) {
         if (key !== action.payload) {
           posts[key] = value
@@ -259,6 +283,51 @@ export const uploadPost = (payload: IUploadPost) =>
         failures.push(filename);
       }
     }
+    if (failures.length > 0) {
+      dispatch(uploadFailure({
+        files: failures
+      } as IUploadFailure))
+    }
+  }
+
+export const uploadData = (payload: IUploadData) =>
+  async (dispatch: Dispatch, getState: () => IState, { auth, storage, db }: IServices) => {
+    if (!auth.currentUser || !payload.file) {
+      return
+    }
+    const failures: string[] = []
+    dispatch(uploadStart())
+    const token = await auth.currentUser.getIdToken()
+
+    const filename: string = payload.file.name
+
+    const formData = new FormData();
+    formData.append('file0', payload.file)
+    const result = await fetch(`/api/posts/upload-data`, {
+      body: formData,
+      headers: {
+        authorization: token,
+        "Content-Type": "multipart/form-data"
+      },
+      method: 'POST'
+    })
+    const posts: { id: string }[] = await result.json()
+    for (let postId of posts) {
+      const storageRef = storage.ref()
+      const imageURL = await storageRef
+        .child(`posts`)
+        .child(`${postId.id}.jpg`)
+        .getDownloadURL()
+      const snap = await db.collection('posts').doc(postId.id).get()
+      dispatch(uploadDataSuccess({
+          [snap.id]: {
+            ...snap.data(),
+            imageURL
+          }
+        } as unknown as IDataPosts))
+    }
+
+    //failures.push(filename);
     if (failures.length > 0) {
       dispatch(uploadFailure({
         files: failures
