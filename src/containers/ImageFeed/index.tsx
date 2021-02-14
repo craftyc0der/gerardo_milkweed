@@ -9,6 +9,7 @@ import { IState } from "../../ducks";
 import { Fab, Action } from 'react-tiny-fab';
 import 'react-tiny-fab/dist/styles.css';
 import { History } from "history";
+import SearchBox from "../../components/SearchBox";
 
 interface IImageFeedProps {
   history: History;
@@ -18,6 +19,13 @@ interface IImageFeedProps {
   data: postDuck.IDataPosts;
   like: (a: string) => void;
   deleteImage: (a: string) => void;
+  searchPosts: (
+    querySampleId: string, 
+    queryPlateId: string, 
+    queryPlateSide: string, 
+    queryGenus: string,
+    querySpecies: string) => void;
+  query: string;
 }
 
 const style = {
@@ -34,6 +42,11 @@ const style = {
 };
 
 class ImageFeed extends Component<IImageFeedProps> {
+  public querySampleId: string = "";
+  public queryPlateId: string = "";
+  public queryPlateSide: string = "";
+  public queryGenus: string = "";
+  public querySpecies: string = "";
   constructor(props: IImageFeedProps) {
     super(props);
     const { history, fetchPosts, fetched } = props;
@@ -53,10 +66,66 @@ class ImageFeed extends Component<IImageFeedProps> {
     deleteImage(id);
   };
 
+  private handleSearchSampleId = (query: string) => {
+    this.querySampleId = query;
+    this.handleSearchPosts();
+  }
+
+  private handleSearchPlateId = (query: string) => {
+    this.queryPlateId = query;
+    this.handleSearchPosts();
+  }
+
+  private handleSearchPlateSide = (query: string) => {
+    this.queryPlateSide = query;
+    this.handleSearchPosts();
+  }
+
+  private handleSearchGenus = (query: string) => {
+    this.queryGenus = query;
+    this.handleSearchPosts();
+  }
+
+  private handleSearchSpecies = (query: string) => {
+    this.querySpecies = query;
+    this.handleSearchPosts();
+  }
+
+  private handleSearchPosts = () => {
+    const { fetchPosts, searchPosts } = this.props;
+    if (
+      this.querySampleId.trim().length == 0 && 
+      this.queryPlateId.trim().length == 0 && 
+      this.queryPlateSide.trim().length == 0 && 
+      this.queryGenus.trim().length == 0 && 
+      this.querySpecies.trim().length == 0
+      ) {
+      fetchPosts();
+    } else {
+      searchPosts(
+        this.querySampleId,
+        this.queryPlateId,
+        this.queryPlateSide,
+        this.queryGenus,
+        this.querySpecies);
+    }
+  };
+
   render() {
-    const { history, data } = this.props;
+    const { history, data, query } = this.props;
     return (
       <Container>
+        <div>
+          <SearchBox query={query} label="Search Sample Id" changeSearch={this.handleSearchSampleId} />
+          <br />
+          <SearchBox query={query} label="Search Plate Id" changeSearch={this.handleSearchPlateId} />
+          <br />
+          <SearchBox query={query} label="Front of Back (F|B)" changeSearch={this.handleSearchPlateSide} />
+          <br />
+          <SearchBox query={query} label="Search Genus" changeSearch={this.handleSearchGenus} />
+          <br />
+          <SearchBox query={query} label="Search Species" changeSearch={this.handleSearchSpecies} />
+        </div>
         {Object.keys(data).map((x) => {
           const post = data[x];
           if (post.imageURL) {
@@ -66,10 +135,8 @@ class ImageFeed extends Component<IImageFeedProps> {
                   like={this.handleLike(x)}
                   deleteImage={this.handleDeleteImage(x)}
                   image={post.imageURL}
-                  barcode={post.barcode}
-                  qrcode={post.qrcode}
-                  plateSide={post.plateSide}
                   sampleId={post.sampleId}
+                  postData={post}
                 />
               </div>
             );

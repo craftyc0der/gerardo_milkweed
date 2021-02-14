@@ -1,5 +1,5 @@
 import React, { Component, CSSProperties } from "react";
-
+import * as postDuck from "../ducks/Posts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThumbsUp, faTrash } from "@fortawesome/free-solid-svg-icons";
 
@@ -25,33 +25,58 @@ const style = {
 };
 
 interface IFooterProps {
-  barcode: string;
-  qrcode: string;
-  plateSide: string;
-  sampleId: string;  
+  sampleId: string;
+  postData: postDuck.IPost;
+  big: boolean;
   like: () => void;
   deleteImage: () => void;
 }
 
 export default class Footer extends Component<IFooterProps> {
   render() {
-    const {barcode, qrcode, plateSide, sampleId, like, deleteImage} = this.props
-
-    return (
-      <div>
-        <div style={style.row}>
-          <div>{barcode}{plateSide}__{qrcode}</div>
-          <div>{sampleId}</div>
-        </div>          
-        <div style={style.footer}>      
-          <div onClick={like} style={style.button}>
-            <FontAwesomeIcon icon={faThumbsUp} /> Like
+    const {sampleId, postData, big, like, deleteImage} = this.props
+    if (big) {
+      return (
+        <div>
+          <div style={style.row}>
+            <div>{sampleId}</div>
           </div>
-          <div onClick={deleteImage} style={style.button}>
-            <FontAwesomeIcon icon={faTrash} /> Delete
+          <div style={style.row}>
+            <div>Genus: {postData.genus}</div>
+            <div>Species: {postData.species}</div>
+            <div>Side: {postData.plateSide}</div>
+            <div>Plate: {postData.barcode}</div>
+            <div>Day: {postData.qrcode}</div>
+          </div>  
+          <div style={style.footer}>      
+            <div onClick={like} style={style.button}>
+              <FontAwesomeIcon icon={faThumbsUp} /> Like
+            </div>
+            <div onClick={deleteImage} style={style.button}>
+              <FontAwesomeIcon icon={faTrash} /> Delete
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div>
+          <div style={style.row}>
+            <div>{sampleId}</div>
+          </div>
+          <div style={style.footer}>      
+            <div onClick={like} style={style.button}>
+              <FontAwesomeIcon icon={faThumbsUp} /> Like
+            </div>
+            <div onClick={deleteImage} style={style.button}>
+              <FontAwesomeIcon icon={faTrash} /> Delete
+            </div>
+          </div>
+        </div>
+      );
+    }
   }
+  // getData(postData: object, column: string): string {
+  //   return postData[column];
+  // }
 }

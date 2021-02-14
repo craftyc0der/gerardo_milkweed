@@ -8,8 +8,11 @@ const style = (center: boolean) => ({
   //flexbox:
   display: "flex",
   justifyContent: center ? "center" : undefined,
-  alignItems: center ? "center" : undefined,
+  alignItems: "flex-start",
+  alignContent: "flex-start",
   flexDirection: 'column',//vertical post position
+  flexFlow: 'wrap',
+
 }) as CSSProperties;
 
 interface IContainer {

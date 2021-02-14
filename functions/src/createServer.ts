@@ -122,9 +122,7 @@ export default () => {
           .get()
         if (snaps.size > 0) {
           for (let doc of snaps.docs) {
-            await doc.ref.update({
-              sampleId: item.sampleId
-            })
+            await doc.ref.update(item)
             updates.push({ id: doc.id })
           }
         }

@@ -2,6 +2,7 @@
 import { stubFalse } from "lodash";
 import React, { Component, CSSProperties } from "react";
 import Footer from "./Footer";
+import * as postDuck from "../ducks/Posts";
 
 const style = {
   card: {
@@ -22,10 +23,8 @@ const style = {
 
 interface IPostProps {
   image: string;
-  barcode: string;
-  qrcode: string;
-  plateSide: string;
   sampleId: string;
+  postData: postDuck.IPost;
   like: () => void;
   deleteImage: () => void;
 }
@@ -38,7 +37,7 @@ export default class Post extends Component<IPostProps> {
   };
 
   render() {
-    const { image, barcode, qrcode, plateSide, sampleId, like, deleteImage } = this.props;
+    const { image, sampleId, postData, like, deleteImage } = this.props;
     return (
       <div style={style.card}>
         <img style={{ width: "300px" }} src={image} onClick={this.handleShowDialog} />
@@ -56,19 +55,17 @@ export default class Post extends Component<IPostProps> {
               alt="no image"
             />
             <Footer 
-              barcode={barcode}
-              qrcode={qrcode}
-              plateSide={plateSide}
               sampleId={sampleId}          
+              postData={postData}
+              big={true}
               like={like} 
               deleteImage={deleteImage}/>
           </dialog>
         )}
         <Footer 
-          barcode={barcode}
-          qrcode={qrcode}
-          plateSide={plateSide}
-          sampleId={sampleId}          
+          sampleId={sampleId}   
+          postData={postData}
+          big={false}
           like={like} 
           deleteImage={deleteImage}/>
       </div>

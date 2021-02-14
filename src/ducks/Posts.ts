@@ -8,11 +8,13 @@ import { IState } from ".";
 export interface IPost {
   barcode: string
   qrcode: string
-  plateSide: string;
+  plateSide: string
   sampleId: string
   userId: string
   createdAt: firestore.Timestamp
   imageURL: string
+  genus: string
+  species: string
 }
 
 export interface IDataPosts {
@@ -173,7 +175,73 @@ export default function reducer(state = initialState, action: AnyAction) {
   }
 }
 
-// create first thunk
+export const searchPosts = (
+      querySampleId: string, 
+      queryPlateId: string, 
+      queryPlateSide: string, 
+      queryGenus: string,
+      querySpecies: string
+      ) =>
+  async (dispatch: Dispatch, getState: () => IState, { db, storage }: IServices) => {
+    dispatch(fetchStart())
+    try {
+      let cref = await db.collection('posts');
+      let query;
+      if (querySampleId.trim().length > 0) {
+        query = cref.where("sampleId", "==", querySampleId);
+      }
+      if (queryPlateId.trim().length > 0) {
+        if (query) {
+          query = query.where("barcode", "==", queryPlateId);
+        } else {
+          query = cref.where("barcode", "==", queryPlateId);
+        }
+      }
+      if (queryPlateSide.trim().length > 0) {
+        if (query) {
+          query = query.where("plateSide", "==", queryPlateSide);
+        } else {
+          query = cref.where("plateSide", "==", queryPlateSide);
+        }
+      }
+      if (queryGenus.trim().length > 0) {
+        if (query) {
+          query = query.where("genus", "==", queryGenus);
+        } else {
+          query = cref.where("genus", "==", queryGenus);
+        }
+      }
+      if (querySpecies.trim().length > 0) {
+        if (query) {
+          query = query.where("species", "==", querySpecies);
+        } else {
+          query = cref.where("species", "==", querySpecies);
+        }
+      }
+      if (query) {
+        const snaps = await query.get()
+        const posts: any = {}
+        snaps.forEach(x => posts[x.id] = x.data())
+
+        const imgIds = await Promise.all(Object.keys(posts).map(async x => {
+          const ref = storage.ref(`posts/${x}.jpg`)
+          const url = await ref.getDownloadURL()
+          return [x, url]
+        }))
+
+        const keyedImages: any = {}
+        imgIds.forEach(x => keyedImages[x[0]] = x[1])
+
+        Object.keys(posts).forEach(x => posts[x] = {
+          ...posts[x],
+          imageURL: keyedImages[x],
+        })
+        dispatch(fetchSuccess(posts))
+      }
+    } catch (e) {
+      dispatch(fetchError(e))
+    }
+  }
 export const fetchPosts = () =>
   async (dispatch: Dispatch, getState: () => IState, { db, storage }: IServices) => {
     dispatch(fetchStart())
