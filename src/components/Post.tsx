@@ -13,17 +13,16 @@ const style = {
   },
   dialog: {
     boxShadow: "0 8px 6px -6px black",
-    position: "absolute",
+    position: "fixed",
     top: "10%"
-  } as CSSProperties,  
+  } as CSSProperties,
   image: {
-    width: "800px"
+    width: "930px"
   }
 };
 
 interface IPostProps {
   image: string;
-  sampleId: string;
   postData: postDuck.IPost;
   like: () => void;
   deleteImage: () => void;
@@ -37,7 +36,7 @@ export default class Post extends Component<IPostProps> {
   };
 
   render() {
-    const { image, sampleId, postData, like, deleteImage } = this.props;
+    const { image, postData, like, deleteImage } = this.props;
     return (
       <div style={style.card}>
         <img style={{ width: "300px" }} src={image} onClick={this.handleShowDialog} />
@@ -46,7 +45,6 @@ export default class Post extends Component<IPostProps> {
             className="dialog"
             style={style.dialog}
             open
-            onClick={this.handleShowDialog}
           >
             <img
               style={style.image}
@@ -54,20 +52,18 @@ export default class Post extends Component<IPostProps> {
               onClick={this.handleShowDialog}
               alt="no image"
             />
-            <Footer 
-              sampleId={sampleId}          
+            <Footer
               postData={postData}
               big={true}
-              like={like} 
-              deleteImage={deleteImage}/>
+              like={like}
+              deleteImage={deleteImage} />
           </dialog>
         )}
-        <Footer 
-          sampleId={sampleId}   
+        <Footer
           postData={postData}
           big={false}
-          like={like} 
-          deleteImage={deleteImage}/>
+          like={like}
+          deleteImage={deleteImage} />
       </div>
     );
   }

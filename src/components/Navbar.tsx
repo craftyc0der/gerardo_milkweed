@@ -19,8 +19,8 @@ export default class Navbar extends Component {
   render() {
     return (
       <div style={style.navbar}>
-        <Link style={style.link} to="/app/imagefeed"><FontAwesomeIcon icon={faNewspaper}/> Gerardo Lab Milkweed</Link>
-        <div style={{ float: "right"}}><Link style={style.link} to="/app/profile"><FontAwesomeIcon icon={faUser}/> Profile</Link></div>
+        <Link style={style.link} to="/app/imagefeed"><FontAwesomeIcon icon={faNewspaper} /> Gerardo Lab Attine Database</Link>
+        <div style={{ float: "right" }}><Link style={style.link} to="/app/profile"><FontAwesomeIcon icon={faUser} /> Profile</Link></div>
       </div>
     );
   }

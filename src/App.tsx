@@ -24,10 +24,14 @@ class App extends React.Component<IAppProps> {
   public componentDidMount() {
     const { auth } = services;
     auth.onAuthStateChanged((user) => {
+      this.setState({
+        loading: true,
+      });
       const { history } = this.props;
       if (user) {
         const { loadInitialData } = this.props;
         loadInitialData();
+        console.log(user);
         if (["/", "/register"].indexOf(window.location.pathname) > -1) {
           history.push("/app/imagefeed");
         }
@@ -49,16 +53,16 @@ class App extends React.Component<IAppProps> {
     return loading ? (
       "loading"
     ) : (
-      <BrowserRouter>
-        <Route exact={true} path="/" component={Login} />
-        <Route exact={true} path="/register" component={Register} />
-        <Route path="/app" component={Navbar} />
-        <Route exact={true} path="/app/imagefeed" component={ImageFeed} />
-        <Route exact={true} path="/app/profile" component={Profile} />
-        <Route exact={true} path="/app/upload" component={UploadPost} />
-        <Route exact={true} path="/app/upload-data" component={UploadData} />
-      </BrowserRouter>
-    );
+        <BrowserRouter>
+          <Route exact={true} path="/" component={Login} />
+          <Route exact={true} path="/register" component={Register} />
+          <Route path="/app" component={Navbar} />
+          <Route exact={true} path="/app/imagefeed" component={ImageFeed} />
+          <Route exact={true} path="/app/profile" component={Profile} />
+          <Route exact={true} path="/app/upload" component={UploadPost} />
+          <Route exact={true} path="/app/upload-data" component={UploadData} />
+        </BrowserRouter>
+      );
   }
 }
 

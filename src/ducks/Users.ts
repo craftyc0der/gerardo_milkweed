@@ -8,10 +8,17 @@ export interface ILogin {
 }
 
 const SET_PROFILE_IMAGE = 'users/set-profile-image'
+const SET_PROFILE_ROLE = 'user/role'
+const POST_URL = process.env.REACT_APP_CLOUD_FUNCTION_URL || ''
 
 export const setProfileImage = (payload: string) => ({
   payload,
   type: SET_PROFILE_IMAGE,
+})
+
+export const setProfileRole = (payload: string) => ({
+  payload,
+  type: SET_PROFILE_ROLE,
 })
 
 export default function reducer(state = {}, action: AnyAction) {
@@ -20,6 +27,12 @@ export default function reducer(state = {}, action: AnyAction) {
       return {
         ...state,
         profileImage: action.payload
+      }
+    }
+    case SET_PROFILE_ROLE: {
+      return {
+        ...state,
+        profileRole: action.payload
       }
     }
     default: {
@@ -46,7 +59,15 @@ export const loadUserInitialData = () =>
     if (!auth.currentUser) {
       return
     }
+    const token = await auth.currentUser.getIdToken()
+    const roleRequest = await fetch(POST_URL + `/api/user/role`, {
+      headers: {
+        authorization: token
+      }
+    })
     const { uid } = auth.currentUser
+    const { role } = await roleRequest.json()
+    dispatch(setProfileRole(role))
     const storageRef = storage.ref()
     const imageRef = await storageRef
       .child(`profileImages`)
@@ -70,8 +91,7 @@ export const handleProfileImageSubmit = (payload: { file: File }) =>
     dispatch(setProfileImage(url))
   }
 
-export const handleLogout = () => 
+export const handleLogout = () =>
   async (dispatch: Dispatch, getState: () => IState, { auth }: IServices) => {
     await auth.signOut();
   }
-  

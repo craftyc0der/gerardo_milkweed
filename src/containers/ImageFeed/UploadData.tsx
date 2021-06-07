@@ -18,7 +18,7 @@ interface IUploadDataProps {
 }
 
 class UploadData extends React.Component<IUploadDataProps> {
-  
+
   public componentDidUpdate() {
     const { history, uploaded } = this.props;
     if (uploaded) {
@@ -43,7 +43,6 @@ class UploadData extends React.Component<IUploadDataProps> {
 }
 
 const mapStateToProps = (state: IState) => {
-  console.log(state);
   const {
     Posts: { failures, uploading, uploaded },
   } = state;

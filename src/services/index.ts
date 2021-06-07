@@ -2,7 +2,7 @@ import * as firebase from "./firebase";
 import { firestore, storage, auth } from "firebase";
 
 const services = {
-  ...firebase,  
+  ...firebase,
 }
 
 export interface IServices {

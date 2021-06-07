@@ -1,10 +1,11 @@
 import * as React from 'react';
-import {Component} from 'react';
+import { Component } from 'react';
 
 interface SearchBoxProps {
   query: string;
   label: string;
-  changeSearch: (query: string)=> void;
+  maxLength?: number;
+  changeSearch: (query: string) => void;
 }
 interface SearchBoxState {
   query: string;
@@ -22,9 +23,10 @@ export default class SearchBox extends Component<SearchBoxProps, SearchBoxState>
       <div className="search-box">
         <input
           type="search"
+          maxLength={this.props.maxLength ? this.props.maxLength : 20}
           placeholder={this.props.label}
           value={this.props.query}
-          onChange={this.handleChange.bind(this)}/>
+          onChange={this.handleChange.bind(this)} />
       </div>
     );
   }

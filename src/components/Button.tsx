@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 const style = (block: boolean, disabled: boolean) => ({
-  backgroundColor: disabled ? "#777777" : "#00D1B2",
+  backgroundColor: disabled ? "#777777" : "#00A8D1",
   border: "0px",
   borderRadius: "4px",
   padding: "10px 15px",

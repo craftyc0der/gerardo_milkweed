@@ -13,8 +13,15 @@ export interface IPost {
   userId: string
   createdAt: firestore.Timestamp
   imageURL: string
-  genus: string
-  species: string
+  hostAntGenus: string
+  hostAntSpecies: string
+  hostStrain: string
+  parasiteAntGenus: string
+  parasiteAntSpecies: string
+  parasiteStrain: string
+  temperature: number
+  location: string
+  media: string
 }
 
 export interface IDataPosts {
@@ -43,6 +50,7 @@ const UPLOAD_START = 'posts/upload-start'
 const UPLOAD_SUCCESS = 'posts/upload-success'
 const UPLOAD_FAILURE = 'posts/upload-failure'
 const UPLOAD_DATA_SUCCESS = 'posts/upload-data-success'
+const POST_URL = process.env.REACT_APP_CLOUD_FUNCTION_URL || ''
 
 // action creators
 const fetchStart = () => ({
@@ -147,7 +155,6 @@ export default function reducer(state = initialState, action: AnyAction) {
       }
     case UPLOAD_DATA_SUCCESS:
       state.failures = []
-      console.log(action.payload) 
       return {
         ...state,
         data: {
@@ -156,7 +163,7 @@ export default function reducer(state = initialState, action: AnyAction) {
         },
         uploaded: true,
         uploading: false,
-      }      
+      }
     case REMOVE:
       for (const [key, value] of Object.entries(state.data)) {
         if (key !== action.payload) {
@@ -169,56 +176,71 @@ export default function reducer(state = initialState, action: AnyAction) {
         data: {
           ...state.data,
         }
-      } 
+      }
     default:
       return state
   }
 }
 
 export const searchPosts = (
-      querySampleId: string, 
-      queryPlateId: string, 
-      queryPlateSide: string, 
-      queryGenus: string,
-      querySpecies: string
-      ) =>
+  queryPlateId: string,
+  queryDay: string,
+  queryHostStrain: string,
+  queryParasiteStrain: string,
+  queryPlateSide: string,
+) =>
   async (dispatch: Dispatch, getState: () => IState, { db, storage }: IServices) => {
     dispatch(fetchStart())
     try {
       let cref = await db.collection('posts');
       let query;
-      if (querySampleId.trim().length > 0) {
-        query = cref.where("sampleId", "==", querySampleId);
-      }
+      let orderByBarcode = true;
+      let orderByDay = true;
+      let orderByPlateSide = true;
       if (queryPlateId.trim().length > 0) {
+        query = cref.where("barcode", "==", queryPlateId);
+        orderByBarcode = false;
+      }
+      if (queryHostStrain.trim().length > 0) {
         if (query) {
-          query = query.where("barcode", "==", queryPlateId);
+          query = query.where("hostStrain", "==", queryHostStrain);
         } else {
-          query = cref.where("barcode", "==", queryPlateId);
+          query = cref.where("hostStrain", "==", queryHostStrain);
+        }
+      }
+      if (queryParasiteStrain.trim().length > 0) {
+        if (query) {
+          query = query.where("parasiteStrain", "==", queryParasiteStrain);
+        } else {
+          query = cref.where("parasiteStrain", "==", queryParasiteStrain);
+        }
+      }
+      if (queryDay.trim().length > 0) {
+        orderByDay = false;
+        if (query) {
+          query = query.where("qrcode", "==", Number(queryDay));
+        } else {
+          query = cref.where("qrcode", "==", Number(queryDay));
         }
       }
       if (queryPlateSide.trim().length > 0) {
+        orderByPlateSide = false;
         if (query) {
           query = query.where("plateSide", "==", queryPlateSide);
         } else {
           query = cref.where("plateSide", "==", queryPlateSide);
         }
       }
-      if (queryGenus.trim().length > 0) {
-        if (query) {
-          query = query.where("genus", "==", queryGenus);
-        } else {
-          query = cref.where("genus", "==", queryGenus);
-        }
-      }
-      if (querySpecies.trim().length > 0) {
-        if (query) {
-          query = query.where("species", "==", querySpecies);
-        } else {
-          query = cref.where("species", "==", querySpecies);
-        }
-      }
       if (query) {
+        if (orderByBarcode) {
+          query = query.orderBy("barcode");
+        }
+        if (orderByDay) {
+          query = query.orderBy("qrcode");
+        }
+        if (orderByPlateSide) {
+          query = query.orderBy("plateSide", "desc");
+        }
         const snaps = await query.get()
         const posts: any = {}
         snaps.forEach(x => posts[x.id] = x.data())
@@ -246,7 +268,7 @@ export const fetchPosts = () =>
   async (dispatch: Dispatch, getState: () => IState, { db, storage }: IServices) => {
     dispatch(fetchStart())
     try {
-      const snaps = await db.collection('posts').get()
+      const snaps = await db.collection('posts').orderBy("createdAt").limitToLast(100).get()
       const posts: any = {}
       snaps.forEach(x => posts[x.id] = x.data())
 
@@ -276,7 +298,7 @@ export const like = (id: string) =>
       return
     }
     const token = await auth.currentUser.getIdToken()
-    await fetch(`/api/posts/${id}/like`, {
+    await fetch(POST_URL + `/api/posts/${id}/like`, {
       headers: {
         authorization: token
       }
@@ -289,7 +311,7 @@ export const deleteImage = (id: string) =>
       return
     }
     const token = await auth.currentUser.getIdToken()
-    const result = await fetch(`/api/posts/${id}/delete`, {
+    const result = await fetch(POST_URL + `/api/posts/${id}/delete`, {
       headers: {
         authorization: token
       }
@@ -316,13 +338,13 @@ export const uploadPost = (payload: IUploadPost) =>
         failures.push(filename);
         continue;
       }
-      const barcode = filepieces[0].substr(0,filepieces[0].length-1)
-      const plateSide = filepieces[0].substr(filepieces[0].length-1,filepieces[0].length)
-      const qrcode = filepieces[1].substr(0,1)
-      if (barcode.length == 5 && plateSide.length == 1 && qrcode.length == 1) {
-        const result = await fetch(`/api/posts/upload`, {
+      const barcode = filepieces[0].substr(0, filepieces[0].length - 1)
+      const plateSide = filepieces[0].substr(filepieces[0].length - 1, filepieces[0].length)
+      const qrcode = filepieces[1].split(".")[0]
+      if (barcode.length == 5 && plateSide.length == 1 && qrcode.length > 0) {
+        const result = await fetch(POST_URL + `/api/posts/upload`, {
           body: JSON.stringify(
-            { 
+            {
               barcode,
               plateSide,
               qrcode
@@ -332,7 +354,7 @@ export const uploadPost = (payload: IUploadPost) =>
           },
           method: 'POST'
         })
-    
+
         const { id: postId }: { id: string } = await result.json()
         const storageRef = storage.ref()
         const response = await storageRef
@@ -342,11 +364,11 @@ export const uploadPost = (payload: IUploadPost) =>
         const imageURL = await response.ref.getDownloadURL()
         const snap = await db.collection('posts').doc(postId).get()
         dispatch(uploadSuccess({
-            [snap.id]: {
-              ...snap.data(),
-              imageURL,
-            }
-          } as unknown as IDataPosts))
+          [snap.id]: {
+            ...snap.data(),
+            imageURL,
+          }
+        } as unknown as IDataPosts))
       } else {
         failures.push(filename);
       }
@@ -371,7 +393,7 @@ export const uploadData = (payload: IUploadData) =>
 
     const formData = new FormData();
     formData.append('file0', payload.file)
-    const result = await fetch(`/api/posts/upload-data`, {
+    const result = await fetch(POST_URL + `/api/posts/upload-data`, {
       body: formData,
       headers: {
         authorization: token,
@@ -388,11 +410,11 @@ export const uploadData = (payload: IUploadData) =>
         .getDownloadURL()
       const snap = await db.collection('posts').doc(postId.id).get()
       dispatch(uploadDataSuccess({
-          [snap.id]: {
-            ...snap.data(),
-            imageURL
-          }
-        } as unknown as IDataPosts))
+        [snap.id]: {
+          ...snap.data(),
+          imageURL
+        }
+      } as unknown as IDataPosts))
     }
 
     //failures.push(filename);

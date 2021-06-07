@@ -67,7 +67,7 @@ class Profile extends Component<IProfileProps> {
             submitProfileImage={submitProfileImage}
           />
           <span>
-            <Button onClick={handleLogout}> Logout </Button>  
+            <Button onClick={handleLogout}> Logout </Button>
           </span>
         </div>
         {data.map((x, i) => (

@@ -21,11 +21,17 @@ const style = {
     display: "flex",
     justifyContent: "space-between", //add 100% spaces beetween all element contend (profile and button), good for work with columns
     marginBottom: "10px",
-  },
+    flexWrap: "wrap",
+    maxWidth: "930px",
+  } as CSSProperties,
+  rowdiv: {
+    "flex-grow": "1",
+    width: "33%",
+    height: "30px",
+  } as CSSProperties,
 };
 
 interface IFooterProps {
-  sampleId: string;
   postData: postDuck.IPost;
   big: boolean;
   like: () => void;
@@ -34,21 +40,25 @@ interface IFooterProps {
 
 export default class Footer extends Component<IFooterProps> {
   render() {
-    const {sampleId, postData, big, like, deleteImage} = this.props
+    const { postData, big, like, deleteImage } = this.props
     if (big) {
       return (
         <div>
           <div style={style.row}>
-            <div>{sampleId}</div>
+            <div>{postData.barcode} - {postData.plateSide} - {postData.qrcode}</div>
           </div>
           <div style={style.row}>
-            <div>Genus: {postData.genus}</div>
-            <div>Species: {postData.species}</div>
-            <div>Side: {postData.plateSide}</div>
-            <div>Plate: {postData.barcode}</div>
-            <div>Day: {postData.qrcode}</div>
-          </div>  
-          <div style={style.footer}>      
+            <div style={style.rowdiv}>Host Ant Genus: {postData.hostAntGenus}</div>
+            <div style={style.rowdiv}>Host Ant Species: {postData.hostAntSpecies}</div>
+            <div style={style.rowdiv}>Host Strain: {postData.hostStrain}</div>
+            <div style={style.rowdiv}>Parasite Ant Genus: {postData.parasiteAntGenus}</div>
+            <div style={style.rowdiv}>Parasite Ant Species: {postData.parasiteAntSpecies}</div>
+            <div style={style.rowdiv}>Parasite Strain: {postData.parasiteStrain}</div>
+            <div style={style.rowdiv}>Temperature: {postData.temperature}</div>
+            <div style={style.rowdiv}>Location: {postData.location}</div>
+            <div style={style.rowdiv}>Media: {postData.media}</div>
+          </div>
+          <div style={style.footer}>
             <div onClick={like} style={style.button}>
               <FontAwesomeIcon icon={faThumbsUp} /> Like
             </div>
@@ -62,9 +72,9 @@ export default class Footer extends Component<IFooterProps> {
       return (
         <div>
           <div style={style.row}>
-            <div>{sampleId}</div>
+            <div>{postData.barcode} - {postData.plateSide} - {postData.qrcode}</div>
           </div>
-          <div style={style.footer}>      
+          <div style={style.footer}>
             <div onClick={like} style={style.button}>
               <FontAwesomeIcon icon={faThumbsUp} /> Like
             </div>

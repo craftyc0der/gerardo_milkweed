@@ -6,7 +6,7 @@ export { default as Posts } from "./Posts"
 export interface IState {
   Posts: {
     data: IDataPosts
-    failures: [],    
+    failures: [],
     fetched: boolean
     fetching: boolean
     uploading: boolean
@@ -14,5 +14,6 @@ export interface IState {
   }
   Users: {
     profileImage?: string
+    profileRole?: string
   }
 }

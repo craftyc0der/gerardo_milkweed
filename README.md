@@ -1,4 +1,4 @@
-## Gerardo Milkweed
+## Gerardo Attine Database
 System for displaying & searching photographs of petri dishes.
 
 
@@ -17,4 +17,9 @@ System for displaying & searching photographs of petri dishes.
 yarn start
 cd functions
 npm run-script serve
+```
+
+### `To deploy:`
+```bash
+./deploy-all.sh
 ```
